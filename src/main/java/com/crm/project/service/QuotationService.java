@@ -16,10 +16,7 @@ import com.crm.project.utils.CalculatorUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -165,8 +162,25 @@ public class QuotationService {
 
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
 
-        Page<Quotation> quotations = quotationRepository.findAllQuotationsWithDetails(pageable);
-        return quotations.map(quotationMapper::toQuotationResponse);
+        Page<String> idPage = quotationRepository.findAllQuotationIds(pageable);
+        List<String> ids = idPage.getContent();
+
+        if (ids.isEmpty()) {
+            throw new AppException(ErrorCode.NO_RESULTS);
+        }
+
+        List<Quotation> quotations = quotationRepository.findAllQuotationsWithDetails(ids);
+
+        Map<String, Quotation> quotationMap = quotations.stream()
+                .collect(Collectors.toMap(Quotation::getId, Function.identity()));
+
+        List<QuotationResponse> sortedResponses = ids.stream()
+                .map(quotationMap::get)
+                .filter(Objects::nonNull)
+                .map(quotationMapper::toQuotationResponse)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(sortedResponses, pageable, idPage.getTotalElements());
     }
 
     private Map<Product, Integer> getProductFromItemRequest(List<QuotationItemRequest> items) {
@@ -213,13 +227,31 @@ public class QuotationService {
         quotationRepository.deleteById(id);
     }
 
-    public Page<QuotationResponse> searchQuotations(String query, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-        Page<Quotation> quotations = quotationRepository.findQuotationsBySearch(query, pageable);
-        if (quotations.isEmpty()) {
+    public Page<QuotationResponse> searchQuotations(String query, int pageNumber, int pageSize, String sortBy, String sortOrder) {
+        Sort sort = sortOrder.equalsIgnoreCase("ASC")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
+
+        Page<String> idPage = quotationRepository.findQuotationsBySearch(query, pageable);
+        List<String> ids = idPage.getContent();
+
+        if (ids.isEmpty()) {
             throw new AppException(ErrorCode.NO_RESULTS);
         }
-        return quotations.map(quotationMapper::toQuotationResponse);
+
+        List<Quotation> quotations = quotationRepository.findAllQuotationsWithDetails(ids);
+
+        Map<String, Quotation> quotationMap = quotations.stream()
+                .collect(Collectors.toMap(Quotation::getId, Function.identity()));
+
+        List<QuotationResponse> sortedResponses = ids.stream()
+                .map(quotationMap::get)
+                .filter(Objects::nonNull)
+                .map(quotationMapper::toQuotationResponse)
+                .collect(Collectors.toList());
+        return new PageImpl<>(sortedResponses, pageable, idPage.getTotalElements());
     }
 
     public Map<String, Long> getQuotationStatusSummary() {

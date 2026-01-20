@@ -56,7 +56,7 @@ public class QuotationController {
     @GetMapping
     public ResponseEntity<MyApiResponse> getAllQuotations(@RequestParam(name = "pageNo", required = false, defaultValue = "1") int pageNumber,
                                                           @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize,
-                                                          @RequestParam(required = false, defaultValue = "id") String sortBy,
+                                                          @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
                                                           @RequestParam(required = false, defaultValue = "asc") String sortOrder) {
         Page<QuotationResponse> responses = quotationService.getAllQuotations(pageNumber, pageSize, sortBy, sortOrder);
         MyApiResponse apiResponse = MyApiResponse.builder()
@@ -96,8 +96,10 @@ public class QuotationController {
     @GetMapping("/search")
     public ResponseEntity<MyApiResponse> searchQuotations(@RequestParam String query,
                                                           @RequestParam(name = "pageNo", required = false, defaultValue = "1") int pageNumber,
-                                                          @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize) {
-        Page<QuotationResponse> response = quotationService.searchQuotations(query, pageNumber, pageSize);
+                                                          @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize,
+                                                          @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
+                                                          @RequestParam(required = false, defaultValue = "asc") String sortOrder) {
+        Page<QuotationResponse> response = quotationService.searchQuotations(query, pageNumber, pageSize, sortBy, sortOrder);
         MyApiResponse apiResponse = MyApiResponse.builder()
                 .data(response.getContent())
                 .pagination(new PageInfo<>(response))

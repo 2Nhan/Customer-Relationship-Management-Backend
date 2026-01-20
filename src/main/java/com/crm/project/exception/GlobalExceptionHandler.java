@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
         AppErrorInfo apiErrorInfo = com.crm.project.internal.AppErrorInfo.builder()
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())
-                .errorField(exception.getErrorField())
+                .errorField(exception.getErrorAt())
                 .build();
         MyApiResponse apiResponse = MyApiResponse.builder()
                 .code(errorCode.getStatusCode().value())

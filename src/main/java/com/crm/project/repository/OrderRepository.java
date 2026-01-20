@@ -28,25 +28,29 @@ public interface OrderRepository extends JpaRepository<Order, String> {
             """)
     Optional<Order> findOrderWithRelations(String id);
 
-    @Query("""
-                SELECT DISTINCT o 
-                FROM Order o
-                LEFT JOIN FETCH o.orderItems
-                LEFT JOIN FETCH o.createdBy
-                LEFT JOIN FETCH o.lead
-            """)
-    Page<Order> findAllOrdersWithDetails(Pageable pageable);
+    @Query("SELECT o.id FROM Order o")
+    Page<String> findAllIds(Pageable pageable);
 
     @Query("""
                 SELECT DISTINCT o 
                 FROM Order o
                 LEFT JOIN FETCH o.orderItems
                 LEFT JOIN FETCH o.createdBy
-                LEFT JOIN FETCH o.lead l
+                LEFT JOIN FETCH o.lead
+                WHERE o.id IN :ids
+            """)
+    List<Order> findAllOrdersWithDetails(List<String> ids);
+
+    @Query("""
+                SELECT o.id 
+                FROM Order o
+                LEFT JOIN o.orderItems
+                LEFT JOIN o.createdBy
+                LEFT JOIN o.lead l
                 WHERE LOWER(l.fullName) LIKE LOWER(CONCAT('%', :query, '%'))
                         OR LOWER(o.orderCode) LIKE LOWER(CONCAT('%', :query, '%'))
             """)
-    Page<Order> findOrdersBySearch(String query, Pageable pageable);
+    Page<String> findIdsBySearch(String query, Pageable pageable);
 
     boolean existsByOrderCode(String orderCode);
 
@@ -103,5 +107,5 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Query("SELECT COUNT(o) FROM Order o")
     Long countTotalOrders();
 
-    
+
 }

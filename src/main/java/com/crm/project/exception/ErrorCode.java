@@ -29,7 +29,7 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(1019, "Order not found", HttpStatus.NOT_FOUND),
     ORDER_CODE_EXISTED(1020, "Order code already exists", HttpStatus.BAD_REQUEST),
     QUOTATION_ORDER_EXISTED(1021, "This quotation has been converted into order", HttpStatus.BAD_REQUEST),
-
+    OUT_OF_STOCK(1022, "Products out of stock", HttpStatus.BAD_REQUEST),
 
     INVALID_FILE_TYPE(1100, "File type is not supported", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
     INVALID_FILE_SIZE(1101, "File size limit is 1MB", HttpStatus.BAD_REQUEST),

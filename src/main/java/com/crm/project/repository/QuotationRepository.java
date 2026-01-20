@@ -25,24 +25,29 @@ public interface QuotationRepository extends JpaRepository<Quotation, String> {
             """)
     Optional<Quotation> findQuotationDetailById(String id);
 
-    @Query("""
-            SELECT DISTINCT q FROM Quotation q
-            LEFT JOIN FETCH q.lead
-            LEFT JOIN FETCH q.items i
-            LEFT JOIN FETCH i.product
-            """)
-    Page<Quotation> findAllQuotationsWithDetails(Pageable pageable);
+    @Query("SELECT q.id FROM Quotation q")
+    Page<String> findAllQuotationIds(Pageable pageable);
 
     @Query("""
                 SELECT DISTINCT q FROM Quotation q
-                LEFT JOIN FETCH q.createdBy cb
-                LEFT JOIN FETCH q.lead l
+                LEFT JOIN FETCH q.lead
                 LEFT JOIN FETCH q.items i
                 LEFT JOIN FETCH i.product
+                WHERE q.id IN :ids
+            """)
+    List<Quotation> findAllQuotationsWithDetails(List<String> ids);
+
+    @Query("""
+                SELECT q.id
+                FROM Quotation q
+                LEFT JOIN q.createdBy cb
+                LEFT JOIN q.lead l
+                LEFT JOIN q.items i
+                LEFT JOIN i.product
                 WHERE LOWER(l.fullName) LIKE LOWER(CONCAT('%', :query, '%'))
                    OR LOWER(q.title) LIKE LOWER(CONCAT('%', :query, '%'))
             """)
-    Page<Quotation> findQuotationsBySearch(String query, Pageable pageable);
+    Page<String> findQuotationsBySearch(String query, Pageable pageable);
 
     @Modifying
     @Query("""
