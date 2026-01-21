@@ -31,6 +31,7 @@ public interface QuotationRepository extends JpaRepository<Quotation, String> {
     @Query("""
                 SELECT DISTINCT q FROM Quotation q
                 LEFT JOIN FETCH q.lead
+                LEFT JOIN FETCH q.createdBy
                 LEFT JOIN FETCH q.items i
                 LEFT JOIN FETCH i.product
                 WHERE q.id IN :ids
