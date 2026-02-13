@@ -32,3 +32,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Test files ###
+order-*.json
+*.ps1
+

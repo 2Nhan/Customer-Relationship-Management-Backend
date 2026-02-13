@@ -7,8 +7,10 @@ import com.crm.project.exception.AppException;
 import com.crm.project.exception.ErrorCode;
 import com.crm.project.mapper.OrderMapper;
 import com.crm.project.repository.*;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,24 +35,35 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final LeadRepository leadRepository;
     private final ProductRepository productRepository;
+    private final StageService stageService;
 
     @Transactional
     public OrderResponse createOrderFromQuotation(String quotationId, OrderCreationFromQuotationRequest request) {
-        Quotation quotation = quotationRepository.findQuotationDetailById(quotationId).orElseThrow(() -> new AppException(ErrorCode.QUOTATION_NOT_FOUND));
+        String threadName = Thread.currentThread().getName();
+        long startTime = System.currentTimeMillis();
+
+        Quotation quotation = quotationRepository.findQuotationDetailById(quotationId)
+                .orElseThrow(() -> new AppException(ErrorCode.QUOTATION_NOT_FOUND));
 
         if (orderRepository.existsByQuotationId(quotationId)) {
+            System.out.println("[" + threadName + "] ✗ Quotation already has order (detected by check)");
+            System.out.println("========================================\n");
             throw new AppException(ErrorCode.QUOTATION_ORDER_EXISTED);
         }
 
         if (orderRepository.existsByOrderCode(request.getOrderCode())) {
+            System.out.println("[" + threadName + "] ✗ Quotation code existed (detected by check)");
+            System.out.println("========================================\n");
             throw new AppException(ErrorCode.ORDER_CODE_EXISTED);
         }
 
         this.updateProductQuantity(quotation.getItems());
 
-        User user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        List<OrderItem> orderItems = quotation.getItems().stream().map(orderMapper::fromQuotationItemToOrderItem).toList();
+        List<OrderItem> orderItems = quotation.getItems().stream().map(orderMapper::fromQuotationItemToOrderItem)
+                .toList();
 
         Order order = Order.builder()
                 .orderCode(request.getOrderCode())
@@ -67,8 +80,8 @@ public class OrderService {
         order.setOrderItems(orderItems);
 
         orderRepository.save(order);
+        System.out.println("[" + threadName + "] ✓ Order saved");
 
-        quotation.setStatus("Ordered");
         quotationRepository.save(quotation);
 
         OrderResponse orderResponse = orderMapper.toOrderResponse(order);
@@ -78,7 +91,8 @@ public class OrderService {
     }
 
     public OrderResponse getOrderDetails(String id) {
-        Order order = orderRepository.findOrderWithRelations(id).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        Order order = orderRepository.findOrderWithRelations(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         return orderMapper.toOrderResponse(order);
     }
 
@@ -101,8 +115,8 @@ public class OrderService {
                 .collect(Collectors.toMap(Order::getId, Function.identity()));
 
         List<OrderResponse> sortedResponses = ids.stream()
-                .map(orderMap::get)           // Lấy Order từ Map theo thứ tự ID
-                .filter(Objects::nonNull)     // Đề phòng null
+                .map(orderMap::get) // Lấy Order từ Map theo thứ tự ID
+                .filter(Objects::nonNull) // Đề phòng null
                 .map(orderMapper::toOrderResponse)
                 .collect(Collectors.toList());
         return new PageImpl<>(sortedResponses, pageable, idPage.getTotalElements());
@@ -118,7 +132,8 @@ public class OrderService {
 
     @Transactional
     public OrderResponse completeOrder(String id) {
-        Order order = orderRepository.findOrderWithRelations(id).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        Order order = orderRepository.findOrderWithRelations(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         Lead lead = order.getLead();
         leadRepository.updateStatus(lead.getId());
         order.setStatus("Delivered");
@@ -140,13 +155,15 @@ public class OrderService {
 
     @Transactional
     public OrderResponse cancelOrder(String id) {
-        Order order = orderRepository.findOrderWithRelations(id).orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        Order order = orderRepository.findOrderWithRelations(id)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         order.setStatus("Cancelled");
         orderRepository.save(order);
         return orderMapper.toOrderResponse(order);
     }
 
-    public Page<OrderResponse> searchOrders(String query, int pageNumber, int pageSize, String sortBy, String sortOrder) {
+    public Page<OrderResponse> searchOrders(String query, int pageNumber, int pageSize, String sortBy,
+                                            String sortOrder) {
         Sort sort = sortOrder.equalsIgnoreCase("ASC")
                 ? Sort.by(sortBy).ascending()
                 : Sort.by(sortBy).descending();
@@ -162,33 +179,66 @@ public class OrderService {
                 .collect(Collectors.toMap(Order::getId, Function.identity()));
 
         List<OrderResponse> sortedResponses = ids.stream()
-                .map(orderMap::get)           // Lấy Order từ Map theo thứ tự ID
-                .filter(Objects::nonNull)     // Đề phòng null
+                .map(orderMap::get) // Lấy Order từ Map theo thứ tự ID
+                .filter(Objects::nonNull) // Đề phòng null
                 .map(orderMapper::toOrderResponse)
                 .collect(Collectors.toList());
         return new PageImpl<>(sortedResponses, pageable, idPage.getTotalElements());
     }
 
     private void updateProductQuantity(List<QuotationItem> items) {
-        List<Product> productsToUpdate = new ArrayList<>();
-        Set<String> failedProducts = new HashSet<>();
+
+        Map<String, Integer> requiredQuantity = new HashMap<>();
+        Map<String, Product> productMap = new HashMap<>();
+
         for (QuotationItem item : items) {
             Product product = item.getProduct();
-            if (product.getQuantity() < item.getQuantity()) {
+            String productId = product.getId();
+
+            productMap.putIfAbsent(productId, product);
+            requiredQuantity.merge(productId, item.getQuantity(), Integer::sum);
+        }
+
+        List<String> sortedProductIds = requiredQuantity.keySet()
+                .stream()
+                .sorted()
+                .toList();
+
+        Set<String> failedProducts = new HashSet<>();
+        List<Product> productsToUpdate = new ArrayList<>();
+
+        for (String productId : sortedProductIds) {
+
+            Product product = productMap.get(productId);
+            int needed = requiredQuantity.get(productId);
+
+            if (product.getQuantity() < needed) {
                 failedProducts.add(product.getName());
             } else {
-                product.setQuantity(product.getQuantity() - item.getQuantity());
-                String newStatus = this.updateProductStatusOnQuantity(product.getQuantity() - item.getQuantity());
+                int newQuantity = product.getQuantity() - needed;
+                product.setQuantity(newQuantity);
+
+                String newStatus = updateProductStatusOnQuantity(newQuantity);
                 if (!newStatus.equals(product.getStatus())) {
                     product.setStatus(newStatus);
                 }
+
                 productsToUpdate.add(product);
             }
         }
+
         if (!failedProducts.isEmpty()) {
+            System.out.println("OUT OF STOCK");
             throw new AppException(ErrorCode.OUT_OF_STOCK, failedProducts.toString());
         }
-        productRepository.saveAll(productsToUpdate);
+
+        try {
+            productRepository.saveAll(productsToUpdate);
+            productRepository.flush();
+        } catch (OptimisticLockException | OptimisticLockingFailureException e) {
+            System.out.println("OptimisticLockException");
+            throw new AppException(ErrorCode.PRODUCT_CONFLICT);
+        }
     }
 
     private String updateProductStatusOnQuantity(int quantity) {

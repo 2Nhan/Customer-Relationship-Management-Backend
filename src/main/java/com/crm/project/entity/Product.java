@@ -55,4 +55,8 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product")
     private List<QuotationItem> quotationItems;
+
+    @Version
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long version = 0L;
 }
