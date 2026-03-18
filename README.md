@@ -8,6 +8,7 @@
 
 A production-oriented CRM backend for managing users, leads, quotations, orders, and customer analytics with secure JWT
 authentication.
+> 📖 **For detailed project analysis, system architecture, workflows, and usage guides, please refer to the [Project Documentation](https://docs.google.com/document/d/1y0Q0doghAPiCr0dGmXIamyfkWEguaOmY8_CGu8jVnyA/edit?usp=sharing)**
 
 ---
 
