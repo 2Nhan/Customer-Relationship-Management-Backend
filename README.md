@@ -1,4 +1,4 @@
-# CRM Project API
+# 🚀 CRM Project API
 
 [![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2.5-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
@@ -11,87 +11,97 @@ authentication.
 
 ---
 
-## Key Features
+## 📋 Table of Contents
 
-- Secure stateless authentication using JWT access/refresh tokens, Spring Security, and role-based authorization (RBAC).
-- Lead pipeline management with customizable stages, lead assignment, activity tracking, and lead conversion workflows.
-- End-to-end sales flow from quotation creation to order generation and status tracking.
-- CSV import for leads and products with validation and invalid-row feedback, support small businesses to migrate old
+- [🎯 Key Features](#-key-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [🏗️ Architecture Highlights](#-architecture-highlights)
+- [🚀 Getting Started](#-getting-started)
+- [📚 API Documentation](#-api-documentation)
+- [🗄️ Database Schema](#️-database-schema)
+- [🐳 Deployment](#-deployment)
+- [📄 License](#-license)
+
+---
+
+## 🎯 Key Features
+
+- ✅ Secure stateless authentication using JWT access/refresh tokens, Spring Security, and role-based authorization (
+  RBAC).
+- ✅ Lead pipeline management with customizable stages, lead assignment, activity tracking, and lead conversion
+  workflows.
+- ✅ End-to-end sales flow from quotation creation to order generation and status tracking.
+- ✅ CSV import for leads and products with validation and invalid-row feedback, support small businesses to migrate old
   data to the system.
-- Automatic quotation PDF generation from business data for consistent, ready-to-send documents.
-- Media/document handling via Cloudinary (images + generated quotation PDFs).
-- Email quotation delivery via Resend with PDF attachments.
-- Dashboard/reporting endpoints for revenue, lead conversion, and task completion trends.
-- Scheduled jobs that automatically mark expired activities/quotations.
+- ✅ Automatic quotation PDF generation from business data for consistent, ready-to-send documents.
+- ✅ Media/document handling via Cloudinary (images + generated quotation PDFs).
+- ✅ Email quotation delivery via Resend with PDF attachments.
+- ✅ Dashboard/reporting endpoints for revenue, lead conversion, and task completion trends.
+- ✅ Scheduled jobs that automatically mark expired activities/quotations.
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-### Language
+### 📝 Language
 
 - Java 21
 
-### Frameworks & Libraries
+### 🎯 Frameworks & Libraries
 
-- Spring Boot 3.2.5
-- Spring Web (REST API)
-- Spring Validation
-- Spring Data JPA (Hibernate)
-- Spring Security + OAuth2 Resource Server (JWT)
-- Spring Scheduling
-- Springdoc OpenAPI / Swagger UI
-- Lombok
-- MapStruct
-- Apache Commons CSV
-- OpenPDF (LibrePDF)
-- Nimbus JOSE JWT
+- 📦 Spring Boot 3.2.5
+- 📦 Spring Web (REST API)
+- 📦 Spring Validation
+- 📦 Spring Data JPA (Hibernate)
+- 📦 Spring Security
+- 📦 Spring Scheduling
+- 📦 Springdoc OpenAPI / Swagger UI
+- 📦 Lombok
+- 📦 MapStruct
+- 📦 Apache Commons CSV
+- 📦 OpenPDF (LibrePDF)
+- 📦 Nimbus JOSE JWT
 
-### Database & Storage
+### 💾 Database & Storage
 
-- MySQL (primary relational database)
-- Cloudinary (asset/document hosting)
+- 🗄️ MySQL (primary relational database)
+- ☁️ Cloudinary (asset/document hosting)
 
-### Infrastructure & Deployment
+### 🚀 Infrastructure & Deployment
 
-- Docker multi-stage build (Maven build stage + Temurin JRE runtime)
-- Configurable runtime via environment variables (`application.yml`)
+- 🐳 Docker multi-stage build (Maven build stage + Temurin JRE runtime)
+- ⚙️ Configurable runtime via environment variables (`application.yml`)
 
-### Tooling
+## 🏗️ Architecture Highlights
 
-- Maven Wrapper (`mvnw`, `mvnw.cmd`)
-- JUnit 5 + Spring Boot Test
-- ApacheBench helper script (`run-ab-test.ps1`)
+- 🎯 Layered architecture (`controller -> service -> repository -> entity`) for clear separation of concerns.
+- 📨 Uniform response contract via `MyApiResponse` to keep API output predictable for frontend clients.
+- 🔐 Method-level authorization (`@PreAuthorize`) for sensitive administrative operations.
+- 🔑 Custom JWT decoder to validate access tokens and enforce stateless security flow.
+- 📊 Rich JPA querying with `JOIN FETCH` and two-step pagination for heavy aggregate views.
 
-## Architecture Highlights
+### ⚡ Performance Optimizations
 
-- Layered architecture (`controller -> service -> repository -> entity`) for clear separation of concerns.
-- Uniform response contract via `MyApiResponse` to keep API output predictable for frontend clients.
-- Method-level authorization (`@PreAuthorize`) for sensitive administrative operations.
-- Custom JWT decoder to validate access tokens and enforce stateless security flow.
-- Rich JPA querying with `JOIN FETCH` and two-step pagination for heavy aggregate views.
-
-### Performance Optimizations
-
-- **Deferred Join** in order/quotation flows: query only IDs first, then fetch details by ID list to keep paging stable
+- 🚀 **Deferred Join** in order/quotation flows: query only IDs first, then fetch details by ID list to keep paging
+  stable
   and reduce heavy joins during count/page slicing.
-- **`JOIN FETCH` relation loading** in repositories to reduce N+1 query behavior on detail/list endpoints.
+- ⚡ **`JOIN FETCH` relation loading** in repositories to reduce N+1 query behavior on detail/list endpoints.
 
-## Getting Started
+## 🚀 Getting Started
 
-### Prerequisites
+### ✅ Prerequisites
 
-- Java 21
-- MySQL 8+
-- Docker (optional, for containerized run)
-- (Optional) Cloudinary account + Resend API key for file/email features
+- ☕ Java 21
+- 🗄️ MySQL 8+
+- 🐳 Docker (optional, for containerized run)
+- 📦 (Optional) Cloudinary account + Resend API key for file/email features
 
-### Installation
+### 📥 Installation
 
 ```powershell
 # from project root
 .\mvnw.cmd clean install
 ```
 
-### Environment Variables
+### ⚙️ Environment Variables
 
 Create a `.env` file in the project root (loaded by `spring-dotenv`) and configure values like below:
 
@@ -117,7 +127,7 @@ MAIL_API_KEY=your_resend_api_key
 MAIL_SENDER=no-reply@your-domain.com
 ```
 
-### Run Locally
+### ▶️ Run Locally
 
 ```powershell
 .\mvnw.cmd spring-boot:run
@@ -127,21 +137,21 @@ Application base URL:
 
 - `http://localhost:8088/crm`
 
-## API Documentation
+## 📚 API Documentation
 
-- Swagger UI: `http://localhost:8088/crm/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8088/crm/api-docs`
-- OpenAPI YAML: `http://localhost:8088/crm/openapi.yml`
+- 📘 Swagger UI: `http://localhost:8088/crm/swagger-ui.html`
+- 📄 OpenAPI JSON: `http://localhost:8088/crm/api-docs`
+- 📋 OpenAPI YAML: `http://localhost:8088/crm/openapi.yml`
 
-## Database Schema (High-Level)
+## 🗄️ Database Schema
 
 Core domain entities:
 
-- `users` <-> `roles`
-- `stages` -> `leads`
-- `leads` -> `activities`
-- `leads` -> `quotations` -> `quotation_items` -> `products`
-- `quotations` -> `orders` -> `order_items`
+- 👥 `users` <-> `roles`
+- 📍 `stages` -> `leads`
+- 📝 `leads` -> `activities`
+- 📄 `leads` -> `quotations` -> `quotation_items` -> `products`
+- 📦 `quotations` -> `orders` -> `order_items`
 
 ```mermaid
 erDiagram
@@ -159,9 +169,9 @@ erDiagram
     ORDER ||--|{ ORDER_ITEM : contains
 ```
 
-## Deployment
+## 🐳 Deployment
 
-### Docker (Recommended)
+### 🐳 Docker (Recommended)
 
 ```powershell
 docker build -t crm-project-api .
@@ -174,7 +184,7 @@ Notes:
 - API context path is `/crm`.
 - Ensure MySQL is reachable from the container environment.
 
-## License
+## 📄 License
 
 - OpenAPI metadata declares **Apache 2.0**.
 - Consider adding a root `LICENSE` file to make licensing explicit in the repository.
