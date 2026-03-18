@@ -6,8 +6,18 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8+-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 
-A production-oriented CRM backend for managing users, leads, quotations, orders, and customer analytics with secure JWT
-authentication.
+A business-centric CRM platform designed to help sales teams move from scattered lead tracking to a structured, repeatable revenue process. Instead of managing prospects manually across chats, spreadsheets, and disconnected tools, this system centralizes the full customer journey in one workflow: from capturing leads, qualifying opportunities, building quotations, and converting deals into orders, to monitoring sales performance over time.
+
+From a business perspective, the project focuses on three core goals: improving conversion rate through clear pipeline visibility, shortening sales cycle time with standardized quotation and follow-up processes, and increasing operational consistency across team members. Managers can track productivity and pipeline health, while sales reps can prioritize the right actions at the right stage.
+
+Key business value delivered by the platform:
+
+- Better lead-to-customer conversion through stage-based pipeline management.
+- Faster quotation turnaround with automatic document generation and delivery support.
+- Improved sales accountability via activity tracking, assignment, and progress monitoring.
+- More reliable decision-making with revenue and performance reporting.
+- Reduced manual effort and fewer process gaps in day-to-day sales operations.
+  
 > 📖 **For detailed project analysis, system architecture, workflows, and usage guides, please refer to the [Project Documentation](https://docs.google.com/document/d/1y0Q0doghAPiCr0dGmXIamyfkWEguaOmY8_CGu8jVnyA/edit?usp=sharing)**
 
 ---
