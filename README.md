@@ -80,7 +80,7 @@ authentication.
 
 ### ⚡ Performance Optimizations
 
-- 🚀 **Deferred Join** in order/quotation flows: query only IDs first, then fetch details by ID list to keep paging
+- 🚀 **`Deferred Join`** in order/quotation flows: query only IDs first, then fetch details by ID list to keep paging
   stable
   and reduce heavy joins during count/page slicing.
 - ⚡ **`JOIN FETCH` relation loading** in repositories to reduce N+1 query behavior on detail/list endpoints.
@@ -145,29 +145,8 @@ Application base URL:
 
 ## 🗄️ Database Schema
 
-Core domain entities:
+<img width="975" height="1198" alt="image" src="https://github.com/user-attachments/assets/3ea33759-f1c7-4cc0-985a-402ba22487cd" />
 
-- 👥 `users` <-> `roles`
-- 📍 `stages` -> `leads`
-- 📝 `leads` -> `activities`
-- 📄 `leads` -> `quotations` -> `quotation_items` -> `products`
-- 📦 `quotations` -> `orders` -> `order_items`
-
-```mermaid
-erDiagram
-    ROLE ||--o{ USER : has
-    USER ||--o{ LEAD : owns
-    STAGE ||--o{ LEAD : categorizes
-    LEAD ||--o{ ACTIVITY : includes
-    LEAD ||--o{ QUOTATION : receives
-    USER ||--o{ QUOTATION : creates
-    QUOTATION ||--|{ QUOTATION_ITEM : contains
-    PRODUCT ||--o{ QUOTATION_ITEM : referenced_by
-    QUOTATION ||--o| ORDER : converts_to
-    USER ||--o{ ORDER : creates
-    LEAD ||--o{ ORDER : places
-    ORDER ||--|{ ORDER_ITEM : contains
-```
 
 ## 🐳 Deployment
 
