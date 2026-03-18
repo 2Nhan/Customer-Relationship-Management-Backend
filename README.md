@@ -19,7 +19,7 @@ Key business value delivered by the platform:
 - Reduced manual effort and fewer process gaps in day-to-day sales operations.
 
   
-### > 📖 **For detailed project analysis, system architecture, workflows, and usage guides, please refer to the [Project Documentation](https://docs.google.com/document/d/1y0Q0doghAPiCr0dGmXIamyfkWEguaOmY8_CGu8jVnyA/edit?usp=sharing)**
+### > 📖 **For detailed project analysis, workflows, and usage guides, please refer to the [Project Documentation](https://docs.google.com/document/d/1y0Q0doghAPiCr0dGmXIamyfkWEguaOmY8_CGu8jVnyA/edit?usp=sharing)**
 
 ---
 
